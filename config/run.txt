@@ -1,0 +1,2 @@
+export SESSION_KEY="your-super-secret-key"
+go run .
