@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/thongsoi/gorilla-sessions/handlers"
 )
@@ -29,6 +30,11 @@ func init() {
 	err = db.Ping()
 	if err != nil {
 		log.Fatalf("Failed to ping database: %v", err)
+	}
+	// Load .env
+	err = godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
 	}
 
 	// Initialize session store (better to use environment variable for the secret key)
