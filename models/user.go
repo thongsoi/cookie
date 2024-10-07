@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"log"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,6 +20,7 @@ func (u *User) Create(db *sql.DB) error {
 	// Hash the user's password
 	hashedPassword, err := HashPassword(u.Password)
 	if err != nil {
+		log.Printf("Error hashing password: %v", err)
 		return err
 	}
 
@@ -27,6 +29,7 @@ func (u *User) Create(db *sql.DB) error {
 	// Insert the new user into the users2 table
 	_, err = db.Exec("INSERT INTO users2 (username, password) VALUES ($1, $2)", u.Username, u.Password)
 	if err != nil {
+		log.Printf("Error inserting user into database: %v", err)
 		return err
 	}
 
@@ -37,6 +40,7 @@ func (u *User) Create(db *sql.DB) error {
 func HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
+		log.Printf("Error generating bcrypt hash: %v", err)
 		return "", err
 	}
 	return string(hashedPassword), nil
@@ -52,8 +56,10 @@ func GetUserByUsername(db *sql.DB, username string) (*User, error) {
 
 	// If no rows are returned, handle the error
 	if err == sql.ErrNoRows {
+		log.Printf("User not found: %v", err)
 		return nil, errors.New("user not found")
 	} else if err != nil {
+		log.Printf("Database error: %v", err)
 		return nil, err
 	}
 

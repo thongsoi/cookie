@@ -20,7 +20,7 @@ func LoginHandler(db *sql.DB, store *sessions.CookieStore) http.HandlerFunc {
 
 		var storedPassword string
 		var userID int
-		err := db.QueryRow("SELECT id, password FROM users WHERE username = $1", username).Scan(&userID, &storedPassword)
+		err := db.QueryRow("SELECT id, password FROM users2 WHERE username = $1", username).Scan(&userID, &storedPassword)
 		if err != nil {
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
@@ -32,9 +32,18 @@ func LoginHandler(db *sql.DB, store *sessions.CookieStore) http.HandlerFunc {
 			return
 		}
 
-		session, _ := store.Get(r, "session-name")
+		session, err := store.Get(r, "session-name")
+		if err != nil {
+			http.Error(w, "Session error", http.StatusInternalServerError)
+			return
+		}
+
 		session.Values["userID"] = userID
-		session.Save(r, w)
+		err = session.Save(r, w)
+		if err != nil {
+			http.Error(w, "Session save error", http.StatusInternalServerError)
+			return
+		}
 
 		fmt.Fprint(w, "Logged in successfully")
 	}
@@ -42,16 +51,31 @@ func LoginHandler(db *sql.DB, store *sessions.CookieStore) http.HandlerFunc {
 
 func LogoutHandler(store *sessions.CookieStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		session, _ := store.Get(r, "session-name")
+		session, err := store.Get(r, "session-name")
+		if err != nil {
+			http.Error(w, "Session error", http.StatusInternalServerError)
+			return
+		}
+
 		delete(session.Values, "userID")
-		session.Save(r, w)
+		err = session.Save(r, w)
+		if err != nil {
+			http.Error(w, "Session save error", http.StatusInternalServerError)
+			return
+		}
+
 		fmt.Fprint(w, "Logged out successfully")
 	}
 }
 
 func ProtectedHandler(db *sql.DB, store *sessions.CookieStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		session, _ := store.Get(r, "session-name")
+		session, err := store.Get(r, "session-name")
+		if err != nil {
+			http.Error(w, "Session error", http.StatusInternalServerError)
+			return
+		}
+
 		userID, ok := session.Values["userID"].(int)
 		if !ok {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -59,7 +83,7 @@ func ProtectedHandler(db *sql.DB, store *sessions.CookieStore) http.HandlerFunc 
 		}
 
 		var username string
-		err := db.QueryRow("SELECT username FROM users WHERE id = $1", userID).Scan(&username)
+		err = db.QueryRow("SELECT username FROM users2 WHERE id = $1", userID).Scan(&username)
 		if err != nil {
 			http.Error(w, "User not found", http.StatusInternalServerError)
 			return

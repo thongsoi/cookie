@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -44,6 +45,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", handlers.IndexHandler).Methods("GET")
+	r.HandleFunc("/login", serveLoginPage).Methods("GET")
 	r.HandleFunc("/login", handlers.LoginHandler(db, store)).Methods("POST")
 	r.HandleFunc("/logout", handlers.LogoutHandler(store)).Methods("POST")
 	r.HandleFunc("/protected", handlers.ProtectedHandler(db, store)).Methods("GET")
@@ -51,4 +53,9 @@ func main() {
 	http.Handle("/", r)
 	log.Println("Server started on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func serveLoginPage(w http.ResponseWriter, r *http.Request) {
+	filePath := filepath.Join("templates", "login.html")
+	http.ServeFile(w, r, filePath)
 }
