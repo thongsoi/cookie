@@ -1,2 +1,2 @@
 # gorilla-sessions
-learn gorilla/sessions
+gorilla/sessions package
