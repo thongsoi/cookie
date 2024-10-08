@@ -1,2 +1,2 @@
 # gorilla-sessions
-gorilla/sessions package
+cookie + gorilla/sessions
