@@ -1,4 +1,4 @@
-module github.com/thongsoi/gorilla-sessions
+module github.com/thongsoi/cookie
 
 go 1.23
 
@@ -9,6 +9,7 @@ require (
 	github.com/gorilla/sessions v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
+	github.com/thongsoi/gorilla-sessions v0.0.0-20241008054736-6e952e9eac9d
 	golang.org/x/crypto v0.28.0
 )
 
