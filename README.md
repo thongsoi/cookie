@@ -1,2 +1,2 @@
-# gorilla-sessions
-cookie + gorilla/sessions
+# cookie + gorilla-sessions
+
